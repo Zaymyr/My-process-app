@@ -11,6 +11,8 @@ export type Content = {
   lanes: Lane[];
   steps: ProcStep[];
   metrics: string[];
+  actions?: { id: string; label: string; roleId: string | null }[];
+  roles?: { id: string; label: string }[];
 };
 export type Process = {
   id?: number;

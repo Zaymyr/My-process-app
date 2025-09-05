@@ -1,0 +1,30 @@
+import { supabase } from "./supabaseClient";
+
+export async function listRoles() {
+  const { data, error } = await supabase.from("Role").select("*");
+  if (error) throw error;
+  return data;
+}
+
+export async function getRole(id: number) {
+  const { data, error } = await supabase.from("Role").select("*").eq("id", id).single();
+  if (error) throw error;
+  return data;
+}
+
+export async function createRole(role: { Name: string; Departement: number }) {
+  const { data, error } = await supabase.from("Role").insert([role]).select("*").single();
+  if (error) throw error;
+  return data;
+}
+
+export async function updateRole(id: number, role: { Name?: string; Departement?: number }) {
+  const { data, error } = await supabase.from("Role").update(role).eq("id", id).select("*").single();
+  if (error) throw error;
+  return data;
+}
+
+export async function deleteRole(id: number) {
+  const { error } = await supabase.from("Role").delete().eq("id", id);
+  if (error) throw error;
+}

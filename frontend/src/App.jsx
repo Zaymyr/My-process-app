@@ -1,7 +1,2 @@
-import Editor from "./Editor";
-
-function App() {
-  return <Editor />;
-}
-
+import App from "./App.tsx";
 export default App;

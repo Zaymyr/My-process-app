@@ -1,30 +1,41 @@
-// src/services/processService.ts
-import { api } from "../api";
+import { supabase } from "./supabaseClient";
 import type { Process } from "../types";
 
+function withParsedContent<T extends { content: any }>(row: T): T {
+  if (row && typeof row.content === "string") {
+    try { row.content = JSON.parse(row.content); } catch {}
+  }
+  return row;
+}
+
 export async function listProcesses(): Promise<Process[]> {
-  const { data } = await api.get("/api/process");
-  return data;
+  const { data, error } = await supabase.from('Process').select('*');
+  if (error) throw error;
+  return Array.isArray(data) ? data.map(withParsedContent) : [];
 }
 
 export async function getProcess(id: number): Promise<Process> {
-  const { data } = await api.get(`/api/process/${id}`);
-  return data;
+  const { data, error } = await supabase.from('Process').select('*').eq('id', id).single();
+  if (error) throw error;
+  return withParsedContent(data);
 }
 
 export async function createProcess(p: Process): Promise<Process> {
-  const body = { name: p.name || "Untitled", content: p.content };
-  const { data } = await api.post("/api/process", body);
-  return data;
+  const payload = { Name: p.name, content: p.content };
+  const { data, error } = await supabase.from('Process').insert([payload]).select('*').single();
+  if (error) throw error;
+  return withParsedContent(data);
 }
 
 export async function updateProcess(p: Process): Promise<Process> {
-  if (!p.id) throw new Error("updateProcess: missing id");
-  const body = { name: p.name || "Untitled", content: p.content };
-  const { data } = await api.put(`/api/process/${p.id}`, body);
-  return data;
+  if (!p.id) throw new Error("updateProcess: id required");
+  const payload = { Name: p.name, content: p.content };
+  const { data, error } = await supabase.from('Process').update(payload).eq('id', p.id).select('*').single();
+  if (error) throw error;
+  return withParsedContent(data);
 }
 
 export async function deleteProcess(id: number): Promise<void> {
-  await api.delete(`/api/process/${id}`);
+  const { error } = await supabase.from('Process').delete().eq('id', id);
+  if (error) throw error;
 }
